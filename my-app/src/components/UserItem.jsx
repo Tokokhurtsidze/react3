@@ -1,14 +1,9 @@
-import React, {PureComponent } from 'react';
+import React from 'react';
 
-class UserItem extends PureComponent {
-  // shouldComponentUpdate(nextprops,nextstate){
-  //   return !(this.state.show == nextstate.show && this.state.users == nextstate.users)
-
-  // }
-  render(){
-const { id, name, action }=this.props
-  
-  return (
+const UserItem=({ id, name, action })=> {
+ console.log('user', id);
+ 
+ return (
     <div className="user-item">
       <p>ID: {id}</p>
       <p>NAME: {name}</p>
@@ -16,8 +11,8 @@ const { id, name, action }=this.props
     </div>
 
   );
-}
+
 }
 
 
-export default UserItem;
+export default React.memo(UserItem);

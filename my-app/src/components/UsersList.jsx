@@ -1,111 +1,72 @@
-import { Component } from "react";
+import { useEffect, useState ,useRef, useCallback } from "react";
 import UserItem from "./UserItem";
 
-class UsersList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      show: true,
-      inputvalue: "",
-      todoID: 1,
-      error:null,
-      users: [
-        { id: 1, name: "Toko" },
-        { id: 2, name: "Gio" },
-      ],
-    };
-  }
-
-  componentDidMount() {
-    this.fetchTodo();
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.todoID !== this.state.todoID) {
-      this.fetchTodo();
-    }
-  }
-static getDerviedStateFromError(error){
-  return{
-    error:error.message
-  }
-}
-  fetchTodo = () => {
-    fetch(`https://jsonplaceholder.typicode.com/todos/${this.state.todoID}`)
-      .then((response) => response.json())
-      .then((data) => console.log(data));
+const UsersList = () => {
+  const [inputvalue, setinputvalue] = useState("");
+  const [users, setUsers] = useState([
+    { id: 1, name: "Toko" },
+    { id: 2, name: "Gio" },
+  ]);
+  const inputRef = useRef(null);
+  useEffect(()=>{
+    inputRef.current.focus(); 
+  },[])
+    // useEffect(()=>{
+      // fetch('https://jsonplaceholder.typicode.com/todos/1')
+      // .then(data => data.json())
+      // .then(res => console.log(res))
+      // console.log(users.length-1);
+      // return () => {
+        // console.log('cleanup',users[users.length-1]);
+         
+      
+// }},[users])
+  const onchange = (event) => {
+    const value = event.target.value;
+    setinputvalue(value);
   };
 
-  handleInputChange = (event) => {
-    this.setState({ inputvalue: event.target.value });
-  };
-// shouldComponentUpdate(nextprops,nextstate){
-//     return !(this.state.show == nextstate.show && this.state.users == nextstate.users && this.state.todoID == nextstate.todoID)
-
-//   }
-  addUser = (event) => {
+  const addUser = (event) => {
     event.preventDefault();
-    const { inputvalue, users } = this.state;
-
+    const user = {
+      id:users.length+1,
+      name:inputvalue
+    }
+  
     if (inputvalue.trim() === "") return;
-
-    const newUser = {
-      id: Date.now(),
-      name: inputvalue,
-    };
-
-    this.setState({
-      users: [...users, newUser],
-      inputvalue: "",
-    });
+  
+  setUsers((prevState) => [...prevState, user]);
+    setinputvalue("");
   };
+  
 
-  removeUser = (id) => {
-    const users = this.state.users.filter((user) => user.id !== id);
-    this.setState({ users });
-  };
-
-  toggle = () => {
-    this.setState((prevState) => ({ show: !prevState.show }));
-  };
-
-  open = () => {
-    this.setState({ show: true });
-  };
-
-  nextTodo = () => {
-    this.setState((prevState) => ({ todoID: prevState.todoID + 1 }));
-  };
-
-  render() {
-    const { show, users, inputvalue } = this.state;
-
-    return (
-      <div className="users">
-        <form className="user-form" onSubmit={this.addUser}>
-          <input
-            type="text"
-            value={inputvalue}
-            onChange={this.handleInputChange}
-          />
-          <button type="submit">Add user</button>
-        </form>
-        <button onClick={this.toggle}>Toggle</button>
-        <button onClick={this.open}>Open</button>
-        <button onClick={this.nextTodo}>Next todo</button>
-        {show &&
-          users.map((user) => (
-            <UserItem
-              key={user.id}
-              id={user.id}
-              name={user.name}
-              action={this.removeUser}
-            />
-          ))}
-      </div>
-    );
-  }
-}
+  const removeUser = useCallback((id) => {
+    setUsers((prevState)=> prevState.filter((user) => user.id !== id))
+      },[])
+  
+  return (
+    <div className="users">
+      <form className="user-form" onSubmit={addUser}>
+        <input ref={inputRef}
+          type="text"
+          value={inputvalue}
+          onChange={onchange} 
+        />
+        <button type="submit">Add user</button>
+      </form>
+{/* <button onClick={customFocus}>Focus </button> */}
+      {users.map((user) => (
+        <UserItem
+          key={user.id}
+          id={user.id}
+          name={user.name}
+          action={removeUser}
+        />
+      ))}
+    </div>
+  );
+};
 
 export default UsersList;
+
 
